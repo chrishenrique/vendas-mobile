@@ -13,7 +13,7 @@ import { Order } from "@/types/order";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, FlatList, ScrollView, Pressable, TouchableOpacity } from "react-native";
 
 
 export default function OrdersScreen() {
@@ -27,8 +27,22 @@ export default function OrdersScreen() {
         enabled: !!entityId,
     });
 
+    const [isActive, setIsActive] = useState('');
+
+    const handlePress = (value: string) => {
+        setIsActive(value);
+        setSearchQuery(value);
+    };
+
     const filteredData = useMemo(() => {
-        
+        const query = searchQuery.trim().toLowerCase();
+        if (!query) return ORDERS;
+
+        if (query == 'Todos'.toLocaleLowerCase()) return ORDERS;
+
+        return ORDERS?.filter((item) =>
+            item.status.toLowerCase().includes(query)
+        );
     }, [ORDERS, searchQuery]);
 
     const renderCardItem = ({ item }: { item: Order }) => (
@@ -38,7 +52,7 @@ export default function OrdersScreen() {
                     <View className="flex-row">
                         <Heading size="sm">Pedido #{item.id}</Heading>
                     </View>
-                    <StatusBadge status={item.status} order={item}/>
+                    <StatusBadge status={item.status} order={item} />
                 </HStack>
                 <Text size="xs" className="text-gray-400 my-2">{item.date} - {item.items} itens - {item.un} un.</Text>
                 <View
@@ -57,15 +71,36 @@ export default function OrdersScreen() {
         </VStack>
     );
 
+    const BUTTONS = [
+        'Todos',
+        'Aprovado',
+        'Em separacao',
+        'Entregue',
+        'Faturado',
+        'Cancelado',
+    ];
+
     return (
         <View className="flex p-2">
             <Heading className="mx-2">Meus Pedidos</Heading>
-            <View>
-
+            <View className="flex-row m-2">
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                    {
+                        BUTTONS.map((item) => (
+                            <Button 
+                                key={item}
+                                onPress={() => handlePress(item)}
+                                className={`rounded-full mr-2 ${isActive == item ? 'border-accent bg-blue-300' : 'border-gray-600 bg-white'}`}
+                            >
+                                <ButtonText className="text-gray-600">{item}</ButtonText>
+                            </Button>
+                        ))
+                    }
+                </ScrollView>
             </View>
             <View>
                 <FlatList
-                    data={ORDERS}
+                    data={filteredData}
                     renderItem={renderCardItem}
                     keyExtractor={(item) => item.id}
                     showsVerticalScrollIndicator={false}
