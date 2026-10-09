@@ -30,7 +30,7 @@ api.interceptors.request.use(async (req) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response.status === 422) {
+    if (error.response?.status === 422) {
       // Return validation errors for further handling
       return Promise.reject({ validationErrors: error.response.data.errors });
     }
