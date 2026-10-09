@@ -6,11 +6,12 @@ import { router } from "expo-router";
 import { View } from "react-native";
 
 
-export default function HomeScreen() {
+export default function MoreScreen() {
+    const { signOut } = useSession();
     
     return (
         <View>
-            <Text>Home</Text>        
+            <Text>Mais</Text>
 
         </View>
     )
